@@ -4,8 +4,8 @@
 # you need to specify different port numbers.
 export MASTER_PORT=1052
 
-log_dir=/data/OFA/logs/large_s2_ofa_logs
-save_dir=/data/OFA/logs/large_s2_ofa_checkpoints
+log_dir=/data/OFA/logs/large_s2_mofa_logs
+save_dir=/data/OFA/logs/large_s2_mofa_checkpoints
 mkdir -p $log_dir $save_dir
 
 bpe_dir=../../utils/BPE
@@ -19,7 +19,7 @@ restore_file=/data/OFA/checkpoints/large_s1_mofa_checkpoints/2_0.06_2500/checkpo
 selected_cols=1,4,2
 
 task=caption
-arch=ofa_large
+arch=mofa_large
 criterion=scst_reward_criterion
 label_smoothing=0.1
 lr=8e-6
