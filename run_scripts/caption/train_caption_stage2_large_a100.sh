@@ -4,17 +4,17 @@
 # you need to specify different port numbers.
 export MASTER_PORT=1052
 
-log_dir=/data/large_s2_ofa_logs
-save_dir=./large_s2_ofa_checkpoints
+log_dir=/data/OFA/logs/large_s2_ofa_logs
+save_dir=/data/OFA/logs/large_s2_ofa_checkpoints
 mkdir -p $log_dir $save_dir
 
 bpe_dir=../../utils/BPE
 user_dir=../../ofa_module
 
-data_dir=/data/Datasets/OFA/caption_data
+data_dir=/data/OFA/caption_data
 data=${data_dir}/caption_stage2_train.tsv,${data_dir}/caption_val.tsv
 # restore_file=../../checkpoints/caption_large_best_clean.pt
-restore_file=./large_s1_ofa_checkpoints/2_0.06_2500/checkpoint_best.pt
+restore_file=/data/OFA/checkpoints/large_s1_mofa_checkpoints/2_0.06_2500/checkpoint_best.pt
 # restore_file=./large_s1_mofa_checkpoints/2_0.06_2500/checkpoint_best.pt
 selected_cols=1,4,2
 
