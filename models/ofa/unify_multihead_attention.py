@@ -15,7 +15,7 @@ from fairseq.modules.quant_noise import quant_noise
 from torch import Tensor, nn
 from torch.nn import Parameter
 #
-from depthwise_conv2d_implicit_gemm import DepthWiseConv2dImplicitGEMM
+# from depthwise_conv2d_implicit_gemm import DepthWiseConv2dImplicitGEMM
 
 
 @with_incremental_state
@@ -567,13 +567,13 @@ class MultiheadSpatialAttention(MultiheadAttention):
             # nn.init.normal_(self.pe_x.weight, mean=0, std=0.2)
             # nn.init.normal_(self.pe_y.weight, mean=0, std=0.2)
 
-            # self.cnn_1 = torch.nn.Conv2d(
-            #     self.num_heads, self.num_heads*4, padding=(self.w_-1, self.h_-1),
-            #     kernel_size=(2*self.h_-1, 2*self.w_-1),
-            #     stride=1, bias=True, groups=self.num_heads
-            # )
-            print('size', self.h_, 2*self.h_-1)
-            self.cnn_1 = DepthWiseConv2dImplicitGEMM(self.h_, 2*self.h_-1, bias=True)
+            self.cnn_1 = torch.nn.Conv2d(
+                self.num_heads, self.num_heads*4, padding=(self.w_-1, self.h_-1),
+                kernel_size=(2*self.h_-1, 2*self.w_-1),
+                stride=1, bias=True, groups=self.num_heads
+            )
+            # print('size', self.h_, 2*self.h_-1)
+            # self.cnn_1 = DepthWiseConv2dImplicitGEMM(self.h_, 2*self.h_-1, bias=True)
             nn.init.xavier_uniform_(self.cnn_1.weight, gain=0.8*nn.init.calculate_gain('leaky_relu', 0.2))
             # self.group_norm_1 = nn.GroupNorm(self.num_heads, self.num_heads*4)
             # self.act_1 = nn.GELU()
