@@ -32,7 +32,7 @@ from fairseq.modules.checkpoint_activations import checkpoint_wrapper
 from fairseq.modules.quant_noise import quant_noise as apply_quant_noise_
 from torch import Tensor
 
-from .unify_transformer_layer import TransformerEncoderLayer, TransformerDecoderLayer
+from .unify_transformer_layer import TransformerEncoderLayer, TransformerDecoderLayer, TransformerSpatialDecoderLayer
 from .resnet import ResNet
 from .frozen_bn import FrozenBatchNorm2d
 
@@ -383,6 +383,18 @@ class TransformerModel(FairseqEncoderDecoderModel):
     ):
         """Get normalized probabilities (or log probs) from a net's output."""
         return self.get_normalized_probs_scriptable(net_output, log_probs, sample)
+
+
+class TransformerSpatialModel(TransformerModel):
+
+    @classmethod
+    def build_decoder(cls, args, tgt_dict, embed_tokens):
+        return TransformerSpatialDecoder(
+            args,
+            tgt_dict,
+            embed_tokens,
+            no_encoder_attn=getattr(args, "no_cross_attention", False),
+        )
 
 
 class TransformerEncoder(FairseqEncoder):
@@ -1431,6 +1443,39 @@ class TransformerDecoder(FairseqIncrementalDecoder):
                 [state_dict["decoder.embed_image_positions.weight"], new_pos_embed_to_add]
             )
         return state_dict
+
+
+class TransformerSpatialDecoder(TransformerDecoder):
+    """
+    Transformer decoder consisting of *args.decoder_layers* layers. Each layer
+    is a :class:`TransformerSpatialDecoderLayer`.
+
+    Args:
+        args (argparse.Namespace): parsed command-line arguments
+        dictionary (~fairseq.data.Dictionary): decoding dictionary
+        embed_tokens (torch.nn.Embedding): output embedding
+        no_encoder_attn (bool, optional): whether to attend to encoder outputs
+            (default: False).
+    """
+
+    # replace conventional decoder layer with the modified one
+    # A decoder layer consists of a MHA and a cross-MHA
+    # in the modified version, cross-MHA is a spatial one.
+    def build_decoder_layer(self, args, no_encoder_attn=False, drop_path_rate=0.0):
+        layer = TransformerSpatialDecoderLayer(args, no_encoder_attn, drop_path_rate=drop_path_rate)
+        checkpoint = getattr(args, "checkpoint_activations", False)
+        if checkpoint:
+            offload_to_cpu = getattr(args, "offload_activations", False)
+            layer = checkpoint_wrapper(layer, offload_to_cpu=offload_to_cpu)
+        # if we are checkpointing, enforce that FSDP always wraps the
+        # checkpointed layer, regardless of layer size
+        min_params_to_wrap = (
+            getattr(args, "min_params_to_wrap", DEFAULT_MIN_PARAMS_TO_WRAP)
+            if not checkpoint else 0
+        )
+        layer = fsdp_wrap(layer, min_num_params=min_params_to_wrap)
+        return layer
+
 
 
 def Embedding(num_embeddings, embedding_dim, padding_idx=None, zero_init=False):

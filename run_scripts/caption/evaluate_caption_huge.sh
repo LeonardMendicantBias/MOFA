@@ -9,7 +9,7 @@ export GPUS_PER_NODE=4
 user_dir=../../ofa_module
 bpe_dir=../../utils/BPE
 
-data=../../dataset/caption_data/caption_test.tsv
+data=/data/Datasets/OFA/caption_data/caption_test.tsv
 path=../../checkpoints/caption_huge_best.pt
 result_path=../../results/caption
 selected_cols=1,4,2
@@ -34,4 +34,4 @@ python3 -m torch.distributed.launch --nproc_per_node=${GPUS_PER_NODE} --master_p
     --num-workers=0 \
     --model-overrides="{\"data\":\"${data}\",\"bpe_dir\":\"${bpe_dir}\",\"eval_cider\":False,\"selected_cols\":\"${selected_cols}\"}"
 
-python coco_eval.py ../../results/caption/test_predict.json ../../dataset/caption_data/test_caption_coco_format.json
+python coco_eval.py ../../results/caption/test_predict.json /data/Datasets/OFA/caption_data/test_caption_coco_format.json

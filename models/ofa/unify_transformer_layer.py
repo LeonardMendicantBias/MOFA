@@ -13,7 +13,7 @@ from fairseq.modules.fairseq_dropout import FairseqDropout
 from fairseq.modules.quant_noise import quant_noise
 from torch import Tensor
 
-from .unify_multihead_attention import MultiheadAttention
+from .unify_multihead_attention import MultiheadAttention, MultiheadSpatialAttention
 
 
 def drop_path(x, drop_prob: float = 0.0, training: bool = False):
@@ -540,3 +540,29 @@ class TransformerDecoderLayer(nn.Module):
         for param_name, param_tensor in self.state_dict().items():
             if (prefix + param_name) not in state_dict:
                 state_dict[prefix + param_name] = self.state_dict()[param_name]
+
+
+class TransformerSpatialDecoderLayer(TransformerDecoderLayer):
+    
+    # def __init__(
+    #     self, args, no_encoder_attn=False, add_bias_kv=False, add_zero_attn=False, drop_path_rate=0.0
+    # ):
+    #     super().__init__(args, no_encoder_attn, add_bias_kv, add_zero_attn, drop_path_rate)
+
+    # override the function that create MHA for cross-attention and
+    # replace with modified version
+    def build_encoder_attention(self, embed_dim, args):
+        return MultiheadSpatialAttention(
+            embed_dim,
+            args.decoder_attention_heads,
+            kdim=getattr(args, "encoder_embed_dim", None),
+            vdim=getattr(args, "encoder_embed_dim", None),
+            dropout=args.attention_dropout,
+            encoder_decoder_attention=True,
+            q_noise=self.quant_noise,
+            qn_block_size=self.quant_noise_block_size,
+            scale_factor=args.attn_scale_factor,
+            scale_heads=getattr(args, 'scale_heads', False)
+        )
+
+# TODO: pass parameter from TransformerDecoderLayer to MultiheadSpatialAttention to know how many patches.
