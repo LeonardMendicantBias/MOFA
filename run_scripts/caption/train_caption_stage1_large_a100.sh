@@ -13,7 +13,7 @@ user_dir=../../ofa_module
 
 data_dir=/data/OFA/caption_data
 data=${data_dir}/caption_stage1_train.tsv,${data_dir}/caption_val.tsv
-restore_file=../../checkpoints/ofa_large.pt
+restore_file=/data/OFA/checkpoints/ofa_large.pt
 selected_cols=0,4,2
 
 task=caption
