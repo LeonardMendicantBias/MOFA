@@ -14,7 +14,7 @@ user_dir=../../ofa_module
 data_dir=/data/OFA/caption_data
 data=${data_dir}/caption_stage2_train.tsv,${data_dir}/caption_val.tsv
 # restore_file=../../checkpoints/caption_large_best_clean.pt
-restore_file=/data/OFA/checkpoints/large_s1_mofa_checkpoints/2_0.06_2500/checkpoint_best.pt
+restore_file=/data/OFA/logs/large_s1_mofa_checkpoints/2_0.06_2500/checkpoint_best.pt
 # restore_file=./large_s1_mofa_checkpoints/2_0.06_2500/checkpoint_best.pt
 selected_cols=1,4,2
 
