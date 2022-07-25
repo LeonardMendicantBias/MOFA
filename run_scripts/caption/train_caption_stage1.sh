@@ -11,7 +11,7 @@ mkdir -p $log_dir $save_dir
 bpe_dir=../../utils/BPE
 user_dir=../../ofa_module
 
-data_dir=/data/Datasets/OFA/caption_data
+data_dir=../../datasets/caption_data
 data=${data_dir}/caption_stage1_train.tsv,${data_dir}/caption_val.tsv
 restore_file=../../checkpoints/ofa_large.pt
 selected_cols=0,4,2
@@ -23,8 +23,8 @@ label_smoothing=0.1
 lr=1e-5
 max_epoch=5
 warmup_ratio=0.06
-batch_size=2
-update_freq=8
+batch_size=4
+update_freq=4
 resnet_drop_path_rate=0.0
 encoder_drop_path_rate=0.1
 decoder_drop_path_rate=0.1
