@@ -575,6 +575,7 @@ class MultiheadSpatialAttention(MultiheadAttention):
             # print('size', self.h_, 2*self.h_-1)
             # self.cnn_1 = DepthWiseConv2dImplicitGEMM(self.h_, 2*self.h_-1, bias=True)
             nn.init.xavier_uniform_(self.cnn_1.weight, gain=1.0*nn.init.calculate_gain('leaky_relu', 0.2))
+            nn.init.constant_(self.cnn_1.bias, 0)
             # self.group_norm_1 = nn.GroupNorm(self.num_heads, self.num_heads*4)
             # self.act_1 = nn.GELU()
             self.act_1 = nn.LeakyReLU(negative_slope=0.2)
