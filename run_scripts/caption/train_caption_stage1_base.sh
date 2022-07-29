@@ -38,12 +38,6 @@ patch_image_size=480
 eval_cider_cached=${data_dir}/cider_cached_tokens/coco-valid-words.p
 drop_worst_ratio=0.2
 
-# drop_worst_ratio=0.05 # modified from 0.2 for el
-# drop_best_ratio=0.05
-# drop_best_after=2500
-# log_end=0.75  # for el
-
-# max_epoch=2
 warmup_ratio=0.06
 drop_worst_after=6000
 
@@ -51,12 +45,6 @@ log_file=${log_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}".log"
 save_path=${save_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}
 mkdir -p $save_path
 
-# log_file=${log_dir}/${max_epoch}"_"${warmup_ratio}"_dwdb"${drop_worst_after}_el${log_end}_".log"
-# save_path=${save_dir}/${max_epoch}"_"${warmup_ratio}"_dwdb"${drop_worst_after}_el${log_end}_
-# mkdir -p $save_path
-
-# --freeze-resnet \
-# CUDA_VISIBLE_DEVICES=0,1,2,3 python3 -m torch.distributed.launch --nproc_per_node=4 --master_port=${MASTER_PORT} ../../train.py \
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 -m torch.distributed.launch --nproc_per_node=8 --master_port=${MASTER_PORT} ../../train.py \
     $data \
     --selected-cols=${selected_cols} \
@@ -113,7 +101,3 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 -m torch.distributed.launch --nproc
     --fp16 \
     --fp16-scale-window=512 \
     --num-workers=0 > ${log_file} 2>&1
-# --log-end ${log_end} --drop-best-ratio ${drop_best_ratio} --drop-best-after ${drop_best_after} \
-#     done
-#   done
-# done

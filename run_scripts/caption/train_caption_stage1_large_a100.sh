@@ -4,8 +4,8 @@
 # you need to specify different port numbers.
 export MASTER_PORT=1051
 
-log_dir=/data/OFA/logs/large_s1_mofa_logs
-save_dir=/data/OFA/logs/large_s1_mofa_checkpoints
+log_dir=/data/OFA/logs/s1_mofa_large_logs
+save_dir=/data/OFA/logs/s1_mofa_large_checkpoints
 mkdir -p $log_dir $save_dir
 
 bpe_dir=../../utils/BPE
@@ -23,7 +23,7 @@ label_smoothing=0.1
 lr=1e-5
 max_epoch=5
 warmup_ratio=0.06
-batch_size=4
+batch_size=8
 update_freq=4
 resnet_drop_path_rate=0.0
 encoder_drop_path_rate=0.1
@@ -36,13 +36,6 @@ num_bins=1000
 patch_image_size=480
 eval_cider_cached=${data_dir}/cider_cached_tokens/coco-valid-words.p
 drop_worst_ratio=0.2
-
-# for max_epoch in {2,}; do
-#   echo "max_epoch "${max_epoch}
-#   for warmup_ratio in {0.06,}; do
-#     echo "warmup_ratio "${warmup_ratio}
-#     for drop_worst_after in {2500,}; do
-#       echo "drop_worst_after "${drop_worst_after}
 
 max_epoch=2
 warmup_ratio=0.06
