@@ -4,8 +4,8 @@
 # you need to specify different port numbers.
 export MASTER_PORT=1051
 
-log_dir=/data/OFA/logs/s1_mofa_large_logs
-save_dir=/data/OFA/logs/s1_mofa_large_checkpoints
+log_dir=/data/OFA/logs/s1_ofa_large_logs
+save_dir=/data/OFA/logs/s1_ofa_large_checkpoints
 mkdir -p $log_dir $save_dir
 
 bpe_dir=../../utils/BPE
@@ -17,14 +17,15 @@ restore_file=/data/OFA/checkpoints/ofa_large.pt
 selected_cols=0,4,2
 
 task=caption
-arch=mofa_large
-criterion=adjust_label_smoothed_cross_entropy
+arch=ofa_base
+# criterion=adjust_label_smoothed_cross_entropy
+criterion=adjust_label_smoothed_cross_entropy # for el
 label_smoothing=0.1
 lr=1e-5
 max_epoch=5
 warmup_ratio=0.06
-batch_size=4
-update_freq=4
+batch_size=8
+update_freq=2
 resnet_drop_path_rate=0.0
 encoder_drop_path_rate=0.1
 decoder_drop_path_rate=0.1
@@ -37,14 +38,14 @@ patch_image_size=480
 eval_cider_cached=${data_dir}/cider_cached_tokens/coco-valid-words.p
 drop_worst_ratio=0.2
 
-max_epoch=2
 warmup_ratio=0.06
-drop_worst_after=2500
+drop_worst_after=6000
+
 log_file=${log_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}".log"
 save_path=${save_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}
 mkdir -p $save_path
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 -m torch.distributed.launch --nproc_per_node=8 --master_port=${MASTER_PORT} ../../train.py \
+CUDA_VISIBLE_DEVICES=0,1,2,3 python3 -m torch.distributed.launch --nproc_per_node=4 --master_port=${MASTER_PORT} ../../train.py \
     $data \
     --selected-cols=${selected_cols} \
     --bpe-dir=${bpe_dir} \
