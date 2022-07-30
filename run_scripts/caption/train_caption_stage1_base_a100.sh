@@ -17,8 +17,9 @@ restore_file=/data/OFA/checkpoints/ofa_base.pt
 selected_cols=0,4,2
 
 task=caption
-arch=mofa_base
-criterion=adjust_label_smoothed_cross_entropy
+arch=ofa_base
+# criterion=adjust_label_smoothed_cross_entropy
+criterion=adjust_label_smoothed_cross_entropy # for el
 label_smoothing=0.1
 lr=1e-5
 max_epoch=5
@@ -37,9 +38,9 @@ patch_image_size=480
 eval_cider_cached=${data_dir}/cider_cached_tokens/coco-valid-words.p
 drop_worst_ratio=0.2
 
-max_epoch=2
 warmup_ratio=0.06
-drop_worst_after=2500
+drop_worst_after=6000
+
 log_file=${log_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}".log"
 save_path=${save_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}
 mkdir -p $save_path
