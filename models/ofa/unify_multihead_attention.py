@@ -555,59 +555,38 @@ class MultiheadSpatialAttention(MultiheadAttention):
             self.avg_pool = torch.nn.AvgPool2d(2, 2)
             self.h_, self.w_ = h//2, w//2
             # self.pad_data = torch.nn.ZeroPad2d((self.w_-1, self.w_-1, self.h_-1, self.h_-1))
-            self.upscale = torch.nn.Upsample(scale_factor=2)
-
-            # init pe_x, pe_y to small value (uniform)
-            # self.pe_x = torch.nn.Embedding(2 * self.h_ - 1, self.num_heads*2)
-            # self.pe_y = torch.nn.Embedding(2 * self.h_ - 1, self.num_heads*2)
-            # # nn.init.uniform_(self.pe_x.weight, -0.05, 0.05)
-            # # nn.init.uniform_(self.pe_y.weight, -0.05, 0.05)
-            # # nn.init.constant_(self.pe_x.weight, 0)
-            # # nn.init.constant_(self.pe_y.weight, 0)
-            # nn.init.normal_(self.pe_x.weight, mean=0, std=0.2)
-            # nn.init.normal_(self.pe_y.weight, mean=0, std=0.2)
 
             self.cnn_1 = torch.nn.Conv2d(
                 self.num_heads, self.num_heads*4, padding=(self.w_-1, self.h_-1),
                 kernel_size=(2*self.h_-1, 2*self.w_-1),
-                stride=1, bias=False, groups=self.num_heads
+                stride=1, bias=True, groups=self.num_heads
             )
-            # print('size', self.h_, 2*self.h_-1)
-            # self.cnn_1 = DepthWiseConv2dImplicitGEMM(self.h_, 2*self.h_-1, bias=True)
             nn.init.xavier_uniform_(self.cnn_1.weight, gain=1.0*nn.init.calculate_gain('leaky_relu', 0.2))
-            # nn.init.constant_(self.cnn_1.bias, 0)
-            # self.group_norm_1 = nn.GroupNorm(self.num_heads, self.num_heads*4)
-            # self.act_1 = nn.GELU()
+            nn.init.constant_(self.cnn_1.bias, 0)
             self.act_1 = nn.LeakyReLU(negative_slope=0.2)
             self.cnn_drop_1 = nn.Dropout(0.1)
-            # self.group_norm_2 = nn.GroupNorm(self.num_heads, self.num_heads*self.spatial_dim)
-            self.act_2 = nn.LeakyReLU(negative_slope=0.2)
-            self.cnn_drop_2 = nn.Dropout(0.1)
 
-            arange = torch.arange(2 * self.h_ - 1)
-            arange_x = arange.tile((2 * self.h_ - 1, 1))
-            arange_y = arange.unsqueeze(-1).tile((1, 2 * self.w_ - 1))
-
-            self.register_buffer('arange_x', arange_x)
-            self.register_buffer('arange_y', arange_y)
-
+            # print('dim:', int(self.spatial_dim/2*self.num_heads))
             self.cnn_2 = torch.nn.Conv2d(
                 self.num_heads*4, self.spatial_dim*self.num_heads,
                 kernel_size=1,
                 stride=1, bias=True, groups=self.num_heads
             )
             nn.init.xavier_uniform_(self.cnn_2.weight, gain=1.0*nn.init.calculate_gain('leaky_relu', 0.2))
-            # nn.init.constant_(self.cnn_2.weight, 0)
-            # nn.init.uniform_(self.cnn_2.weight, -0.01, 0.01)
-            # nn.init.constant_(self.cnn_2.weight, 0)
-            # nn.init.constant_(self.cnn_2.bias, 0)
-            # nn.init.uniform_(self.cnn_2.weight, -0.05, 0.05)
             nn.init.constant_(self.cnn_2.bias, 0)
+            self.act_2 = nn.LeakyReLU(negative_slope=0.2)
+            self.cnn_drop_2 = nn.Dropout(0.1)
 
-            # self.additional_weight = torch.nn.Parameter(torch.empty(self.embed_dim, self.spatial_dim*self.num_heads))#, requires_grad=False)
-            # # nn.init.normal_(self.additional_weight, mean=0, std=0.2)
-            # # nn.init.uniform_(self.additional_weight, -0.1, 0.1)
-            # nn.init.uniform_(self.additional_weight, self.out_proj.weight.min().item(), self.out_proj.weight.max().item())
+            self.upscale = torch.nn.Upsample(scale_factor=2, mode='nearest')
+            # self.upscale = torch.nn.ConvTranspose2d(
+            #     self.spatial_dim*self.num_heads, self.spatial_dim*self.num_heads,
+            #     kernel_size=3, stride=2, padding=1,
+            #     groups=self.num_heads
+            # )
+            # nn.init.xavier_uniform_(self.upscale.weight, gain=1.0*nn.init.calculate_gain('leaky_relu', 0.2))
+            # nn.init.constant_(self.upscale.bias, 0)
+            # self.act_3 = nn.LeakyReLU(negative_slope=0.2)
+            # self.cnn_drop_3 = nn.Dropout(0.1)
 
         else:
             self.spatial_dim = 0
@@ -882,10 +861,6 @@ class MultiheadSpatialAttention(MultiheadAttention):
         assert v is not None
         # v: (B*H, T, D) (8*12, 908, 64)
         if self.encoder_decoder_attention:
-            # print('len', src_len, tgt_len)
-            # print('attn_probs', attn_probs.shape)
-            # print('v', v.shape)
-            # print('attn', attn.shape)
 
             # select the attention scores of image patches ONLY
             # [b*h, t, s] -> [b*h, t, h, w]  (s = h*w)
@@ -894,32 +869,25 @@ class MultiheadSpatialAttention(MultiheadAttention):
             selected_atn_probs = selected_atn_probs.contiguous().view(bsz*tgt_len, self.num_heads, 30, 30)
             avg = self.avg_pool(selected_atn_probs)
 
-            # print('pad', self.pad_data(selected_atn_probs).shape)
-
-            #######
-            # param = torch.stack(
-            #     [self.pe_x(self.arange_x), self.pe_y(self.arange_y)],
-            # dim=-1).flatten(-2, -1).permute(-1, 0, 1).unsqueeze(1)
-            # spatial = torch.nn.functional.conv2d(avg, param, groups=self.num_heads, padding=(self.w_-1, self.h_-1))
-            #######
-
             spatial = self.cnn_1(avg)
-            spatial = spatial * avg.repeat_interleave(4, 1)
-            # spatial = self.group_norm_1(spatial)
+            # spatial = spatial * avg.repeat_interleave(4, 1)
             spatial = self.act_1(spatial)
             spatial = self.cnn_drop_1(spatial)
-            spatial = self.cnn_2(spatial)
+
+            spatial = self.cnn_2(spatial)#, output_size=(self.w_*2, self.h_*2))
             spatial = self.upscale(spatial)
-            # spatial = self.group_norm_2(spatial)
             spatial = self.act_2(spatial)
             spatial = self.cnn_drop_2(spatial)
+
+            # spatial = self.act_3(spatial)
+            # spatial = self.cnn_drop_3(spatial)
 
             spatial = spatial.contiguous().view(bsz, tgt_len, self.num_heads, self.spatial_dim, 900)
             spatial = spatial.transpose(1, 2)
             spatial = spatial.contiguous().view(bsz*self.num_heads, tgt_len, self.spatial_dim, 900).transpose(-1, -2)
 
             # print(attn_probs[:, :, :900].unsqueeze(-1).shape, spatial.shape)
-            spatial = attn_probs[:, :, :900].unsqueeze(-1) * spatial
+            # spatial = attn_probs[:, :, :900].unsqueeze(-1) * spatial
             # print('spatial', spatial.shape)
             # print('-'*30)
 
@@ -930,8 +898,9 @@ class MultiheadSpatialAttention(MultiheadAttention):
             spatial = torch.cat([spatial, dummy_data], dim=-2)
 
             # spatial_v = torch.cat([v.unsqueeze(1).repeat(1, tgt_len, 1, 1), spatial], dim=-1)
-            attn = attn_probs.unsqueeze(-1) * v.unsqueeze(1) + spatial
+            # attn = attn_probs.unsqueeze(-1) * v.unsqueeze(1) + spatial
             # attn = attn_probs.unsqueeze(-1) * v.unsqueeze(1) + attn_probs.unsqueeze(-1) * spatial
+            attn = attn_probs.unsqueeze(-1) * (v.unsqueeze(1) + spatial)
             attn = attn.sum(-2)  # (B, T, D+D_s)
         else:
             attn = torch.bmm(attn_probs, v)

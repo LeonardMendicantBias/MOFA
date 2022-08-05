@@ -6,14 +6,14 @@ export MASTER_PORT=1061
 
 # log_dir=./medium_s1_mofa_logs
 # save_dir=./medium_s1_mofa_checkpoints
-log_dir=/datasets/OFA/logs/medium_s1_ofa_logs
-save_dir=/datasets/OFA/logs/medium_s1_ofa_checkpoints
+log_dir=./medium_s1_ofa_logs
+save_dir=./medium_s1_ofa_checkpoints
 mkdir -p $log_dir $save_dir
 
 bpe_dir=../../utils/BPE
 user_dir=../../ofa_module
 
-data_dir=/datasets/OFA/caption_data
+data_dir=../../datasets/caption_data
 data=${data_dir}/caption_stage1_train.tsv,${data_dir}/caption_val.tsv
 restore_file=../../checkpoints/ofa_medium.pt
 selected_cols=0,4,2

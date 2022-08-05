@@ -7,13 +7,14 @@ export MASTER_PORT=1091
 user_dir=../../ofa_module
 bpe_dir=../../utils/BPE
 
-data=/data/Datasets/OFA/caption_data/caption_test.tsv
+data=../../datasets/caption_data/caption_test.tsv
 # path=../../checkpoints/caption_base_best.pt  # 146.4
 
-path=./base_s1_ofa_checkpoints/5_0.06_6000/checkpoint_4_16000.pt  # 5_20500: 138.1251
-# path=./base_s1_ofa_checkpoints/5_0.06_6000/checkpoint_5_19000.pt  # 5_18000: 138.1058 | 5_21000: 137.6718
+# path=./base_s1_ofa_checkpoints/5_0.06_6000/checkpoint_best.pt  # 5_21000: 1.381739 | 137.9380
+# path=./base_s1_ofa_checkpoints/5_0.06_6000/checkpoint_4_15000.pt  # 5_22000: 138.3739 | 137.3711
 # path=./base_s2_ofa_checkpoints/8e-6_3/checkpoint_3_4000.pt  # 2_4000: 146.4353
-# path=./base_s1_mofa_checkpoints/5_0.06_6000/checkpoint_5_21000.pt  # 5_21000: 138.3716
+# path=./base_s1_mofa_checkpoints/5_0.06_6000_1_normal/checkpoint_5_22000.pt # 5_21000: 138.0436 |  # 5_21000: 138.0174 | 150.3340
+path=./base_s1_mofa_checkpoints/5_0.06_6000_1_normal/checkpoint_5_19500.pt # 5_21000: 138.0436 | 137.9096
 # path=./base_s2_mofa_checkpoints/8e-6_3/checkpoint_3_5000.pt  # 3_5000: 147.1244
 
 # path=./medium_s1_ofa_checkpoints/5_0.06_6000/checkpoint_4_13500.pt  # 4_17500: 130.1408 
@@ -42,4 +43,4 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 -m torch.distributed.launch --nproc
     --num-workers=0 \
     --model-overrides="{\"data\":\"${data}\",\"bpe_dir\":\"${bpe_dir}\",\"eval_cider\":False,\"selected_cols\":\"${selected_cols}\"}"
 
-python coco_eval.py ../../results/caption/test_predict.json /data/Datasets/OFA/caption_data/test_caption_coco_format.json
+python coco_eval.py ../../results/caption/test_predict.json ../../datasets/caption_data/test_caption_coco_format.json
