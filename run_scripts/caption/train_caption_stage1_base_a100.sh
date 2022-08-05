@@ -25,7 +25,7 @@ lr=1e-5
 max_epoch=5
 warmup_ratio=0.06
 batch_size=8
-update_freq=4
+update_freq=2
 resnet_drop_path_rate=0.0
 encoder_drop_path_rate=0.1
 decoder_drop_path_rate=0.1
@@ -45,7 +45,7 @@ log_file=${log_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}".log"
 save_path=${save_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}
 mkdir -p $save_path
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 python3 -m torch.distributed.launch --nproc_per_node=4 --master_port=${MASTER_PORT} ../../train.py \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 -m torch.distributed.launch --nproc_per_node=8 --master_port=${MASTER_PORT} ../../train.py \
     $data \
     --selected-cols=${selected_cols} \
     --bpe-dir=${bpe_dir} \
