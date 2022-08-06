@@ -4,22 +4,22 @@
 # you need to specify different port numbers.
 export MASTER_PORT=1063
 
-log_dir=./medium_s2_mofa_logs
-save_dir=./medium_s2_mofa_checkpoints
+log_dir=./base_s2_mofa_logs
+save_dir=./base_s2_mofa_checkpoints
 mkdir -p $log_dir $save_dir
 
 bpe_dir=../../utils/BPE
 user_dir=../../ofa_module
 
-data_dir=/data/Datasets/OFA/caption_data
+data_dir=../../datasets/caption_data
 data=${data_dir}/caption_stage2_train.tsv,${data_dir}/caption_val.tsv
-restore_file=./medium_s1_mofa_checkpoints/5_0.06_6000/checkpoint_best.pt
+restore_file=./base_s1_mofa_checkpoints/5_0.06_6000_1/checkpoint_best.pt
 # restore_file=./base_s1_checkpoints/5_0.06_dwdb2500_el0.75_/checkpoint_best.pt
 # restore_file=../../checkpoints/caption_base_best.pt
 selected_cols=1,4,2
 
 task=caption
-arch=mofa_medium
+arch=mofa_base
 criterion=scst_reward_criterion
 label_smoothing=0.1
 lr=8e-6

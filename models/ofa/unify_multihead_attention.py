@@ -587,6 +587,12 @@ class MultiheadSpatialAttention(MultiheadAttention):
             # nn.init.constant_(self.upscale.bias, 0)
             # self.act_3 = nn.LeakyReLU(negative_slope=0.2)
             # self.cnn_drop_3 = nn.Dropout(0.1)
+            arange = torch.arange(2 * self.h_ - 1)
+            arange_x = arange.tile((2 * self.h_ - 1, 1))
+            arange_y = arange.unsqueeze(-1).tile((1, 2 * self.w_ - 1))
+
+            self.register_buffer('arange_x', arange_x)
+            self.register_buffer('arange_y', arange_y)
 
         else:
             self.spatial_dim = 0
@@ -899,8 +905,8 @@ class MultiheadSpatialAttention(MultiheadAttention):
 
             # spatial_v = torch.cat([v.unsqueeze(1).repeat(1, tgt_len, 1, 1), spatial], dim=-1)
             # attn = attn_probs.unsqueeze(-1) * v.unsqueeze(1) + spatial
-            # attn = attn_probs.unsqueeze(-1) * v.unsqueeze(1) + attn_probs.unsqueeze(-1) * spatial
-            attn = attn_probs.unsqueeze(-1) * (v.unsqueeze(1) + spatial)
+            attn = attn_probs.unsqueeze(-1) * v.unsqueeze(1) + attn_probs.unsqueeze(-1) * spatial
+            # attn = attn_probs.unsqueeze(-1) * (v.unsqueeze(1) + spatial)
             attn = attn.sum(-2)  # (B, T, D+D_s)
         else:
             attn = torch.bmm(attn_probs, v)

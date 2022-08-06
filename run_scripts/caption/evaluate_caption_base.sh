@@ -14,8 +14,14 @@ data=../../datasets/caption_data/caption_test.tsv
 # path=./base_s1_ofa_checkpoints/5_0.06_6000/checkpoint_4_15000.pt  # 5_22000: 138.3739 | 137.3711
 # path=./base_s2_ofa_checkpoints/8e-6_3/checkpoint_3_4000.pt  # 2_4000: 146.4353
 # path=./base_s1_mofa_checkpoints/5_0.06_6000_1_normal/checkpoint_5_22000.pt # 5_21000: 138.0436 |  # 5_21000: 138.0174 | 150.3340
-path=./base_s1_mofa_checkpoints/5_0.06_6000_1_normal/checkpoint_5_19500.pt # 5_21000: 138.0436 | 137.9096
+# path=./base_s1_mofa_checkpoints/5_0.06_6000_1/checkpoint_5_22000.pt # 5_21000: 138.0436 | 137.9096
+# path=./base_s1_mofa_checkpoints/5_0.06_6000_1/checkpoint_4_16000.pt # 5_22000: 138.1856 | 138.0215
 # path=./base_s2_mofa_checkpoints/8e-6_3/checkpoint_3_5000.pt  # 3_5000: 147.1244
+# path=./base_s2_ofa_checkpoints/8e-6_3/checkpoint_best.pt  # 3_5000: 147.1244 | 146.3920
+# path=/media/leonard/datasets/caption/base_s1_ofa_checkpoints/5_0.06_6000/checkpoint_4_16000.pt  # 4_16000: 137.1714 | 137.8582
+# path=/media/leonard/datasets/caption/base_s1_mofa_checkpoints/5_0.06_6000/checkpoint_5_21000.pt  # 5_22000: 138.2790 | 137.8358
+# path=/media/leonard/datasets/caption/base_s2_ofa_checkpoints/8e-6_3/checkpoint_3_4000.pt  # 3_4000: 146.4353 | 137.8582
+path=/media/leonard/datasets/caption/base_s2_mofa_checkpoints/8e-6_3/checkpoint_3_5000.pt  # 3_5000: 147.0441 | 137.8358 | 3_5000: 147.1244 | 147.1332
 
 # path=./medium_s1_ofa_checkpoints/5_0.06_6000/checkpoint_4_13500.pt  # 4_17500: 130.1408 
 # path=./medium_s2_ofa_checkpoints/8e-6_3/checkpoint_500.pt  # 2_2500: 137.0154
