@@ -4,8 +4,8 @@
 # you need to specify different port numbers.
 export MASTER_PORT=1051
 
-log_dir=/data/OFA/logs/s1_ofa_base_logs
-save_dir=/data/OFA/logs/s1_ofa_base_checkpoints
+log_dir=/data/OFA/logs/s1_mofa_base_logs
+save_dir=/data/OFA/logs/s1_mofa_base_checkpoints
 mkdir -p $log_dir $save_dir
 
 bpe_dir=../../utils/BPE
@@ -17,7 +17,7 @@ restore_file=/data/OFA/checkpoints/ofa_base.pt
 selected_cols=0,4,2
 
 task=caption
-arch=ofa_base
+arch=mofa_base
 # criterion=adjust_label_smoothed_cross_entropy
 criterion=adjust_label_smoothed_cross_entropy # for el
 label_smoothing=0.1
